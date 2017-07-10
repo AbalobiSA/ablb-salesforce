@@ -2,7 +2,7 @@
 
 This is a JSForce wrapper as a node module, to easily create multiple salesforce queries in NodeJS.
 
-===
+---------------
 
 ### Getting started
 
