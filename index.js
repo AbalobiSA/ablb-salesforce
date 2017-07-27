@@ -2,6 +2,7 @@
  * Created by Carl on 2017-05-24.
  */
 let jsforce = require('jsforce');
+let RateLimiter = require('limiter').RateLimiter;
 let secrets;
 
 try {
@@ -11,6 +12,35 @@ try {
     process.exit();
 }
 
+/**
+ * Creates a manual connection to salesforce and passes back the connection
+ * object in a callback
+ * @param callback
+ */
+function createConnection(callback) {
+    let conn = new jsforce.Connection();
+    console.log("Salesforce: Logging in...");
+    return new Promise((resolve, reject) => {
+
+        // console.log("Salesforce: Logging in...");
+        conn.login(secrets.SF_USER, secrets.SF_PASSWORD, function(err, res) {
+            if (err) {
+                reject(err);
+            } else {
+                console.log("Salesforce: Login Successful.\n");
+                resolve(conn);
+            }
+        });
+    });
+}
+
+
+/**
+ * DEPRECATED - Use CreateConnection.then(conn => {conn.query() ... })
+ * @param queryString
+ * @param success
+ * @param error
+ */
 function createQuery(queryString, success, error){
     let conn = new jsforce.Connection();
 
@@ -59,27 +89,7 @@ function createSearch(queryString, success, error){
     });
 }
 
-/**
- * Creates a manual connection to salesforce and passes back the connection
- * object in a callback
- * @param callback
- */
-function createConnection(callback) {
-    let conn = new jsforce.Connection();
-    console.log("Salesforce: Logging in...");
-    return new Promise((resolve, reject) => {
 
-        // console.log("Salesforce: Logging in...");
-        conn.login(secrets.SF_USER, secrets.SF_PASSWORD, function(err, res) {
-            if (err) {
-                reject(err);
-            } else {
-                console.log("Salesforce: Login Successful.\n");
-                resolve(conn);
-            }
-        });
-    });
-}
 
 function update(table, updateobject, success, error) {
     let conn = new jsforce.Connection();
@@ -104,9 +114,46 @@ function update(table, updateobject, success, error) {
     });
 }
 
+/**
+ * Takes an array of objects to insert into a Salesforce table.
+ * @param conn - Connection passed into this function
+ * @param sfObject - Table to insert objects into
+ * @param data - Array of data to insert into table
+ */
+function createMultiple(conn, sfObject, data) {
+    let limiter = new RateLimiter(1, 250);
+    let splitData = splitArray(data);
+
+    for (let i = 0; i < splitData.length; i++) {
+        limiter.removeTokens(1, function() {
+            conn.sobject(sfObject).create(splitData[i], (err, rets) => {
+                if (err) { return console.error(err); }
+                for (let i=0; i < rets.length; i++) {
+                    if (rets[i].success) {
+                        console.log("Created record id : " + rets[i].id);
+                    }
+                }
+            })
+        });
+    }
+
+    // Splits the array of data into chunks of 10
+    function splitArray(array) {
+        let i,j,temparray,chunk = 10;
+        let newArray = [];
+        for (i=0,j=array.length; i<j; i+=chunk) {
+            temparray = array.slice(i,i+chunk);
+            newArray.push(temparray);
+        }
+        return newArray;
+    }
+}
+
+
 module.exports = {
     query: createQuery,
     search: createSearch,
     update: update,
-    createConnection: createConnection
+    createConnection: createConnection,
+    createMultiple: createMultiple
 };
