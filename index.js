@@ -21,8 +21,6 @@ function createConnection(callback) {
     let conn = new jsforce.Connection();
     console.log("Salesforce: Logging in...");
     return new Promise((resolve, reject) => {
-
-        // console.log("Salesforce: Logging in...");
         conn.login(secrets.SF_USER, secrets.SF_PASSWORD, function(err, res) {
             if (err) {
                 reject(err);
@@ -30,38 +28,6 @@ function createConnection(callback) {
                 console.log("Salesforce: Login Successful.\n");
                 resolve(conn);
             }
-        });
-    });
-}
-
-
-/**
- * DEPRECATED - Use CreateConnection.then(conn => {conn.query() ... })
- * @param queryString
- * @param success
- * @param error
- */
-function createQuery(queryString, success, error){
-    let conn = new jsforce.Connection();
-
-    console.log("Salesforce: Logging in...");
-    conn.login(secrets.SF_USER, secrets.SF_PASSWORD, function(err, res) {
-        if (err) {
-            return console.error(err);
-        }
-        console.log("Salesforce: Login Successful.\n");
-        // callback(connection, response);
-
-        //'SELECT Id, FirstName, LastName, primary_community__c, FullPhotoUrl FROM User'
-        console.log(`Salesforce: Querying query string: \n${queryString}`);
-        conn.query(queryString, function(err, res) {
-            if (err) {
-                error(err);
-                return console.error(err);
-            }
-            console.log("Salesforce: Query successful.");
-
-            success(res);
         });
     });
 }
@@ -89,8 +55,6 @@ function createSearch(queryString, success, error){
     });
 }
 
-
-
 function update(table, updateobject, success, error) {
     let conn = new jsforce.Connection();
     conn.login(secrets.SF_USER, secrets.SF_PASSWORD, function(err, res) {
@@ -110,7 +74,28 @@ function update(table, updateobject, success, error) {
                 console.log('Updated Successfully : ' + ret.id);
             }
         });
+    });
+}
 
+/**
+ * Take a single object and create a new Salesforce record in a specific table.
+ * Returns a promise with error or success string.
+ * @param conn
+ * @param tableName
+ * @param data
+ * @returns {Promise}
+ */
+function createSingle(conn, tableName, data) {
+    // Single record creation
+    return new Promise((resolve, reject) => {
+        conn.sobject(tableName).create(data, (err, ret) => {
+            if (err || !ret.success) {
+                reject (err);
+                return console.error(err, ret);
+            } else {
+                resolve(console.log("Created record id : " + ret.id))
+            }
+        });
     });
 }
 
@@ -149,11 +134,42 @@ function createMultiple(conn, sfObject, data) {
     }
 }
 
+/**
+ * DEPRECATED - Use CreateConnection.then(conn => {conn.query() ... })
+ * @param queryString
+ * @param success
+ * @param error
+ */
+function createQuery(queryString, success, error){
+    let conn = new jsforce.Connection();
+
+    console.log("Salesforce: Logging in...");
+    conn.login(secrets.SF_USER, secrets.SF_PASSWORD, function(err, res) {
+        if (err) {
+            return console.error(err);
+        }
+        console.log("Salesforce: Login Successful.\n");
+        // callback(connection, response);
+
+        //'SELECT Id, FirstName, LastName, primary_community__c, FullPhotoUrl FROM User'
+        console.log(`Salesforce: Querying query string: \n${queryString}`);
+        conn.query(queryString, function(err, res) {
+            if (err) {
+                error(err);
+                return console.error(err);
+            }
+            console.log("Salesforce: Query successful.");
+
+            success(res);
+        });
+    });
+}
 
 module.exports = {
     query: createQuery,
     search: createSearch,
     update: update,
     createConnection: createConnection,
+    createSingle: createSingle,
     createMultiple: createMultiple
 };
