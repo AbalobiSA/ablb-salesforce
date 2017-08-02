@@ -78,6 +78,30 @@ function update(table, updateobject, success, error) {
 }
 
 /**
+ * Update a single record in a table.
+ * @param conn
+ * @param table
+ * @param updateobject
+ * @returns {Promise}
+ */
+function updatePromise (conn, table, updateobject) {
+    return new Promise((resolve, reject) => {
+        // Single record update
+        conn.sobject(table).update(updateobject, function(err, ret) {
+            if (err || !ret.success) {
+                // error(err);
+                reject(console.log(err, ret));
+                // return console.error(err, ret);
+            }
+            else {
+                resolve(console.log('Updated Successfully : ' + ret.id));
+                // console.log('Updated Successfully : ' + ret.id);
+            }
+        });
+    })
+}
+
+/**
  * Take a single object and create a new Salesforce record in a specific table.
  * Returns a promise with error or success string.
  * @param conn
@@ -169,6 +193,7 @@ module.exports = {
     query: createQuery,
     search: createSearch,
     update: update,
+    updateSingle: updatePromise,
     createConnection: createConnection,
     createSingle: createSingle,
     createMultiple: createMultiple
