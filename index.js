@@ -90,12 +90,12 @@ function updatePromise (conn, table, updateobject) {
         conn.sobject(table).update(updateobject, function(err, ret) {
             if (err || !ret.success) {
                 // error(err);
-                reject(console.log(err, ret));
-                // return console.error(err, ret);
+                console.error(err, ret);
+                reject([err, ret]);
             }
             else {
-                resolve(console.log('Updated Successfully : ' + ret.id));
-                // console.log('Updated Successfully : ' + ret.id);
+                console.log('Updated Successfully : ' + ret.id);
+                resolve(ret.id);
             }
         });
     })
