@@ -189,6 +189,50 @@ function createQuery(queryString, success, error){
     });
 }
 
+function getFieldNames(conn, sfObject) {
+    return new Promise((resolve, reject) => {
+        conn.sobject(sfObject)
+            .select('*')
+            .limit(1)
+            .execute(getRecords)
+            .then(records => {
+                let keysArr = [];
+                // Build an array of fields in this object
+                if (records.length > 0) {
+                    for (let i in records[0]) {
+                        if (records[0].hasOwnProperty(i)) {
+                            keysArr.push(i);
+                        }
+                    }
+                    resolve(keysArr);
+                    return;
+                    // console.log(keysArr);
+                }
+                reject("No records found. Additionally, " + ex);
+            }).catch(ex => {
+                console.log("Error");
+                console.log(ex);
+            });
+    });
+}
+
+/**
+ * Promisify function for sfObject execute chain method
+ * @param err
+ * @param records
+ * @returns {Promise}
+ */
+function getRecords (err, records) {
+    return new Promise((resolve, reject) => {
+        if (err) {
+            reject(err);
+        } else {
+            resolve(records);
+        }
+    })
+}
+
+
 module.exports = {
     query: createQuery,
     search: createSearch,
@@ -196,5 +240,6 @@ module.exports = {
     updateSingle: updatePromise,
     createConnection: createConnection,
     createSingle: createSingle,
-    createMultiple: createMultiple
+    createMultiple: createMultiple,
+    getFieldNames: getFieldNames
 };
