@@ -129,7 +129,7 @@ function createSingleFake(conn, tableName, data) {
     // Single record creation
     return new Promise((resolve, reject) => {
         let currentDate = new Date();
-        let dateString = currentDate.toString();
+        let dateString = currentDate.toISOString();
         let filename = sanitize(dateString);
         fs.writeFile("../../" + filename + ".json", JSON.stringify(data, null, 4), (err, success) => {
             if (err) {
