@@ -9,6 +9,6 @@ This is a JSForce wrapper as a node module, to easily create multiple salesforce
 Clone this module into your NodeJS app, 
 and provide a secrets file containing a Salesforce username and password referenced in `index.js`
 
-    $ git clone https://github.com/organizations/AbalobiSA/repositories/ablb-salesforce.git salesforce
+    $ yarn add git+https://git@github.com/AbalobiSA/ablb-salesforce.git
 
 You will now be able to import this module and use it in your project.
