@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "jsforce": "^1.8.0",
-    "limiter": "^1.1.2"
+    "limiter": "^1.1.2",
+    "sanitize-filename": "^1.6.1"
   }
 }
