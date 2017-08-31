@@ -4,6 +4,7 @@
 let jsforce = require('jsforce');
 let RateLimiter = require('limiter').RateLimiter;
 let sanitize = require("sanitize-filename");
+let fs = require('fs');
 let secrets;
 
 try {
