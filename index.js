@@ -119,7 +119,8 @@ function createSingle(conn, tableName, data) {
                 reject (err);
                 return console.error(err, ret);
             } else {
-                resolve(console.log("Created record id : " + ret.id))
+                // Resolve with the created record ID
+                resolve(ret.id)
             }
         });
     });
@@ -135,7 +136,7 @@ function createSingleFake(conn, tableName, data) {
             if (err) {
                 reject(err);
             } else {
-                resolve();
+                resolve("FAKE_SALESFORCE_ID");
             }
         })
     });
