@@ -192,9 +192,6 @@ function createQuery(queryString, success, error){
             return console.error(err);
         }
         console.log("Salesforce: Login Successful.\n");
-        // callback(connection, response);
-
-        //'SELECT Id, FirstName, LastName, primary_community__c, FullPhotoUrl FROM User'
         console.log(`Salesforce: Querying query string: \n${queryString}`);
         conn.query(queryString, function(err, res) {
             if (err) {
@@ -252,6 +249,22 @@ function getRecords (err, records) {
 }
 
 
+
+function deleteSingle(conn, table, objectId) {
+    return new Promise((resolve, reject) => {
+        conn.sobject(table).destroy(objectId, function(err, ret) {
+            if (err || !ret.success) {
+                reject (err);
+                console.error(err, ret);
+            } else {
+                resolve(ret.id);
+            }
+            console.log('Salesforce: Deleted Successfully : ' + ret.id);
+        });
+    })
+}
+
+
 module.exports = {
     query: createQuery,
     search: createSearch,
@@ -261,5 +274,6 @@ module.exports = {
     createSingle: createSingle,
     createSingleFake: createSingleFake,
     createMultiple: createMultiple,
+    deleteSingle: deleteSingle,
     getFieldNames: getFieldNames
 };
