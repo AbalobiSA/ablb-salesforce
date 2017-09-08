@@ -222,12 +222,14 @@ function getFieldNames(conn, sfObject) {
                     }
                     resolve(keysArr);
                     return;
-                    // console.log(keysArr);
+                } else {
+                    reject("No records found.");
                 }
-                reject("No records found. Additionally, " + ex);
+
             }).catch(ex => {
                 console.log("Error");
                 console.log(ex);
+                reject("Error in SalesForce: " + ex);
             });
     });
 }
