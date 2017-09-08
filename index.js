@@ -223,7 +223,7 @@ function getFieldNames(conn, sfObject) {
                     resolve(keysArr);
                     return;
                 } else {
-                    reject("No records found.");
+                    reject("No records found for " + sfObject);
                 }
 
             }).catch(ex => {
