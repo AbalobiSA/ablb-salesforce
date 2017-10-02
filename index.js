@@ -266,6 +266,31 @@ function deleteSingle(conn, table, objectId) {
     })
 }
 
+function deleteMultiple(conn, table, thingsToDelete) {
+    return new Promise((resolve, reject) => {
+        let limiter = new RateLimiter(1, 250);
+        // let splitData = splitArray(data);
+
+        for (let i = 0; i < thingsToDelete.length; i++) {
+            limiter.removeTokens(1, () => {
+                conn.sobject(table).destroy(thingsToDelete[i], (err, ret) => {
+                    if (err || !ret.success) {
+                        reject (err);
+                        console.error(err, ret);
+                    } else {
+                        resolve(ret.id);
+                    }
+                    console.log('Salesforce: Deleted Successfully : ' + ret.id);
+                });
+
+                if (i === thingsToDelete.length -1) {
+                    resolve("All items deleted successfully!");
+                }
+            });
+        }
+    })
+}
+
 
 module.exports = {
     query: createQuery,
@@ -277,5 +302,6 @@ module.exports = {
     createSingleFake: createSingleFake,
     createMultiple: createMultiple,
     deleteSingle: deleteSingle,
+    deleteMultiple: deleteMultiple,
     getFieldNames: getFieldNames
 };
