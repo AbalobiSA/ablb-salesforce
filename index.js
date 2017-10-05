@@ -57,6 +57,20 @@ function createSearch(queryString, success, error){
     });
 }
 
+function searchPromise(conn, querystring) {
+    return new Promise((resolve, reject) => {
+        conn.search(querystring, (err, res) => {
+            if (err) {
+                console.log("salesforce: search error: ", err);
+                reject(err);
+            } else {
+                console.log(`salesforce: search debug: RESPONSES RECEIVED: ${res.searchRecords.length}`);
+                resolve(res);
+            }
+        });
+    })
+}
+
 function update(table, updateobject, success, error) {
     let conn = new jsforce.Connection();
     conn.login(secrets.SF_USER, secrets.SF_PASSWORD, function(err, res) {
@@ -293,13 +307,16 @@ function deleteMultiple(conn, table, thingsToDelete) {
 
 
 module.exports = {
+    // Old methods
     query: createQuery,
     search: createSearch,
     update: update,
+    // New methods
     updateSingle: updatePromise,
     createConnection: createConnection,
     createSingle: createSingle,
     createSingleFake: createSingleFake,
+    createSearch: searchPromise,
     createMultiple: createMultiple,
     deleteSingle: deleteSingle,
     deleteMultiple: deleteMultiple,
