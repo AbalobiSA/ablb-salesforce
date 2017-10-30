@@ -37,7 +37,7 @@ function createConnection(callback) {
 function createSearch(queryString, success, error){
     let conn = new jsforce.Connection();
 
-    conn.login(secrets.SF_USER, secrets.SF_PASSWORD, function(err, res) {
+    conn.login(secrets.SF_USER, secrets.SF_PASSWORD, (err, res) => {
         if (err) {
             return console.error(err);
         }
@@ -58,8 +58,11 @@ function createSearch(queryString, success, error){
 }
 
 function searchPromise(conn, querystring) {
+
+    const removeDashes = (text) => text.split("-").join("\\-");
+
     return new Promise((resolve, reject) => {
-        conn.search(querystring, (err, res) => {
+        conn.search(removeDashes(querystring), (err, res) => {
             if (err) {
                 console.log("salesforce: search error: ", err);
                 reject(err);
@@ -310,15 +313,15 @@ module.exports = {
     // Old methods
     query: createQuery,
     search: createSearch,
-    update: update,
+    update,
     // New methods
     updateSingle: updatePromise,
-    createConnection: createConnection,
-    createSingle: createSingle,
-    createSingleFake: createSingleFake,
+    createConnection,
+    createSingle,
+    createSingleFake,
     createSearch: searchPromise,
-    createMultiple: createMultiple,
-    deleteSingle: deleteSingle,
-    deleteMultiple: deleteMultiple,
-    getFieldNames: getFieldNames
+    createMultiple,
+    deleteSingle,
+    deleteMultiple,
+    getFieldNames
 };
